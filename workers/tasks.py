@@ -13,7 +13,15 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://textify:textify@loca
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Lazy imports to avoid circular deps
+
+def _ensure_backend_path():
+    """Add backend directory to sys.path if not already present."""
+    import sys
+    backend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "backend")
+    if backend_path not in sys.path:
+        sys.path.insert(0, backend_path)
+
+
 def _get_storage():
     import boto3
     from botocore.config import Config as BotoConfig
@@ -30,10 +38,7 @@ def _get_storage():
 
 def _get_models():
     """Import DB models lazily."""
-    import sys
-    backend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "backend")
-    if backend_path not in sys.path:
-        sys.path.insert(0, backend_path)
+    _ensure_backend_path()
     from app.models.models import Job, Page, Question, Concept, JobStatus, JobMode
     return Job, Page, Question, Concept, JobStatus, JobMode
 
@@ -59,11 +64,7 @@ def process_document(self, job_id: str, s3_input_key: str, mode: str, model_prov
         pdf_bytes = response["Body"].read()
         
         # Import pipeline modules
-        import sys
-        backend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "backend")
-        if backend_path not in sys.path:
-            sys.path.insert(0, backend_path)
-        
+        _ensure_backend_path()
         from app.pipeline.pdf_processor import PDFProcessor
         from app.pipeline.image_preprocessor import ImagePreprocessor
         from app.pipeline.handwriting_engine import HandwritingEngine

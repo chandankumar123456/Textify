@@ -22,7 +22,6 @@ app.conf.update(
     worker_prefetch_multiplier=1,
     task_routes={
         "workers.tasks.process_document": {"queue": "document_processing"},
-        "workers.tasks.process_page": {"queue": "page_processing"},
     },
     task_default_retry_delay=30,
     task_max_retries=3,
