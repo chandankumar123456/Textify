@@ -42,3 +42,5 @@ minio_data/
 # Temporary
 tmp/
 temp/
+.pytest_cache/
+frontend/.next/
