@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     S3_BUCKET_NAME: str = "textify"
     S3_REGION: str = "us-east-1"
     
+    # CORS
+    CORS_ORIGINS: list = ["http://localhost:3000", "http://localhost:5173"]
+    
     # Upload settings
     MAX_UPLOAD_SIZE_MB: int = 50
     ALLOWED_EXTENSIONS: list = [".pdf"]

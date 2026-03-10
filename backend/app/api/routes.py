@@ -1,3 +1,4 @@
+import re
 import uuid
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from fastapi.responses import StreamingResponse
@@ -21,8 +22,9 @@ async def upload_pdf(
     model_provider: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    if not file.filename.lower().endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are accepted")
+    ext = "." + file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else ""
+    if ext not in settings.ALLOWED_EXTENSIONS:
+        raise HTTPException(status_code=400, detail=f"Only {', '.join(settings.ALLOWED_EXTENSIONS)} files are accepted")
     
     content = await file.read()
     if len(content) > settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024:
@@ -113,11 +115,12 @@ async def download_file(file_path: str):
     try:
         data = storage.download_bytes(file_path)
         content_type = "application/pdf" if file_path.endswith(".pdf") else "application/octet-stream"
-        filename = file_path.split("/")[-1]
+        raw_filename = file_path.split("/")[-1]
+        safe_filename = re.sub(r'[^\w\-.]', '_', raw_filename)
         return StreamingResponse(
             iter([data]),
             media_type=content_type,
-            headers={"Content-Disposition": f"attachment; filename={filename}"}
+            headers={"Content-Disposition": f'attachment; filename="{safe_filename}"'}
         )
     except Exception as e:
         raise HTTPException(status_code=404, detail=f"File not found: {str(e)}")

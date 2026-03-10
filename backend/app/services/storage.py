@@ -1,6 +1,9 @@
+import logging
 import boto3
 from botocore.config import Config as BotoConfig
 from ..config import settings
+
+logger = logging.getLogger(__name__)
 
 class StorageService:
     def __init__(self):
@@ -21,8 +24,9 @@ class StorageService:
         except Exception:
             try:
                 self.client.create_bucket(Bucket=self.bucket)
-            except Exception:
-                pass
+                logger.info("Created S3 bucket: %s", self.bucket)
+            except Exception as e:
+                logger.warning("Could not create S3 bucket '%s': %s", self.bucket, e)
     
     def upload_bytes(self, key: str, data: bytes, content_type: str = "application/octet-stream"):
         self.client.put_object(
