@@ -9,7 +9,7 @@ build/
 venv/
 .venv/
 env/
-
+.env1
 # Node
 node_modules/
 .next/

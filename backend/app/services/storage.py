@@ -1,3 +1,4 @@
+#backend/app/services/storage.py
 import logging
 import boto3
 from botocore.config import Config as BotoConfig
@@ -21,12 +22,8 @@ class StorageService:
     def _ensure_bucket(self):
         try:
             self.client.head_bucket(Bucket=self.bucket)
-        except Exception:
-            try:
-                self.client.create_bucket(Bucket=self.bucket)
-                logger.info("Created S3 bucket: %s", self.bucket)
-            except Exception as e:
-                logger.warning("Could not create S3 bucket '%s': %s", self.bucket, e)
+        except Exception as e:
+            logger.warning("S3 bucket '%s' not accessible: %s", self.bucket, e)
     
     def upload_bytes(self, key: str, data: bytes, content_type: str = "application/octet-stream"):
         self.client.put_object(

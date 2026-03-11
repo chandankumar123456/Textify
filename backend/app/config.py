@@ -11,12 +11,12 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
     
-    # S3-compatible storage
-    S3_ENDPOINT_URL: str = "http://localhost:9000"
-    S3_ACCESS_KEY: str = "minioadmin"
-    S3_SECRET_KEY: str = "minioadmin"
-    S3_BUCKET_NAME: str = "textify"
-    S3_REGION: str = "us-east-1"
+    # S3-compatible storage (Supabase)
+    S3_ENDPOINT_URL: str = ""
+    S3_ACCESS_KEY: str = ""
+    S3_SECRET_KEY: str = ""
+    S3_BUCKET_NAME: str = ""
+    S3_REGION: str = "ap-southeast-2"
     
     # CORS
     CORS_ORIGINS: list = ["http://localhost:3000", "http://localhost:5173"]

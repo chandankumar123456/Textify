@@ -27,13 +27,13 @@ def _get_storage():
     from botocore.config import Config as BotoConfig
     client = boto3.client(
         "s3",
-        endpoint_url=os.environ.get("S3_ENDPOINT_URL", "http://localhost:9000"),
-        aws_access_key_id=os.environ.get("S3_ACCESS_KEY", "minioadmin"),
-        aws_secret_access_key=os.environ.get("S3_SECRET_KEY", "minioadmin"),
-        region_name=os.environ.get("S3_REGION", "us-east-1"),
+        endpoint_url=os.environ.get("S3_ENDPOINT_URL"),
+        aws_access_key_id=os.environ.get("S3_ACCESS_KEY"),
+        aws_secret_access_key=os.environ.get("S3_SECRET_KEY"),
+        region_name=os.environ.get("S3_REGION", "ap-southeast-2"),
         config=BotoConfig(signature_version="s3v4"),
     )
-    return client, os.environ.get("S3_BUCKET_NAME", "textify")
+    return client, os.environ.get("S3_BUCKET_NAME")
 
 
 def _get_models():
