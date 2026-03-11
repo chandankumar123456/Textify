@@ -1,3 +1,15 @@
+"""
+workers/celery_app.py — legacy Celery configuration.
+
+For local development no Celery or Redis broker is needed.
+Processing runs in a background thread inside the FastAPI process.
+
+This file is kept so a distributed Celery deployment can be restored
+in the future by:
+  1. Installing celery[redis] and redis packages
+  2. Setting CELERY_BROKER_URL and CELERY_RESULT_BACKEND env vars
+  3. Running: celery -A workers.celery_app worker --loglevel=info
+"""
 import os
 from celery import Celery
 

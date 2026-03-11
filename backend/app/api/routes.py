@@ -68,7 +68,7 @@ async def start_job(request: StartJobRequest, db: Session = Depends(get_db)):
     
     start_processing_job(
         str(job.id),
-        job.s3_input_key,
+        job.s3_input_key,   # local file path stored in this column
         job.mode.value,
         request.model_provider,
         request.api_key

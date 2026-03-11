@@ -1,3 +1,4 @@
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
@@ -18,6 +19,10 @@ app.include_router(routes.router, prefix="/api")
 
 @app.on_event("startup")
 async def startup_event():
+    # Ensure local data directories exist
+    data_dir = Path(settings.DATA_DIR)
+    for subdir in ("uploads", "pages", "results"):
+        (data_dir / subdir).mkdir(parents=True, exist_ok=True)
     init_db()
 
 @app.get("/health")

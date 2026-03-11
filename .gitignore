@@ -36,6 +36,12 @@ Thumbs.db
 postgres_data/
 minio_data/
 
+# Local data (uploaded files and generated outputs)
+data/uploads/
+data/pages/
+data/results/
+data/*.db
+
 # Logs
 *.log
 

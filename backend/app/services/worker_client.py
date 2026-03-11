@@ -1,26 +1,17 @@
-from celery import Celery
-from ..config import settings
+import threading
+import logging
+from .processor import process_document
 
-celery_app = Celery(
-    "textify",
-    broker=settings.CELERY_BROKER_URL,
-    backend=settings.CELERY_RESULT_BACKEND,
-)
+logger = logging.getLogger(__name__)
 
-celery_app.conf.update(
-    task_serializer="json",
-    result_serializer="json",
-    accept_content=["json"],
-    timezone="UTC",
-    enable_utc=True,
-    task_track_started=True,
-    task_acks_late=True,
-    worker_prefetch_multiplier=1,
-)
 
-def start_processing_job(job_id: str, s3_input_key: str, mode: str, model_provider: str, api_key: str):
-    celery_app.send_task(
-        "workers.tasks.process_document",
-        args=[job_id, s3_input_key, mode, model_provider, api_key],
-        queue="document_processing",
+def start_processing_job(job_id: str, file_key: str, mode: str, model_provider: str, api_key: str):
+    """Dispatch document processing in a background daemon thread."""
+    thread = threading.Thread(
+        target=process_document,
+        args=(job_id, file_key, mode, model_provider, api_key),
+        daemon=True,
+        name=f"processor-{job_id}",
     )
+    thread.start()
+    logger.info("Started processing thread for job %s", job_id)

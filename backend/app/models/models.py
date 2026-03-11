@@ -1,10 +1,27 @@
 import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey, JSON, Enum as SAEnum
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm import relationship
 from ..database import Base
 import enum
+
+
+class GUID(TypeDecorator):
+    """Cross-database UUID type. Stores as String(36); returns uuid.UUID objects."""
+    impl = String(36)
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return None
+        return str(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+        return uuid.UUID(str(value))
+
 
 class JobStatus(str, enum.Enum):
     QUEUED = "queued"
@@ -19,7 +36,7 @@ class JobMode(str, enum.Enum):
 class Job(Base):
     __tablename__ = "jobs"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     status = Column(SAEnum(JobStatus), default=JobStatus.QUEUED, nullable=False)
     mode = Column(SAEnum(JobMode), nullable=False)
     model_provider = Column(String(50), nullable=False)
@@ -39,8 +56,8 @@ class Job(Base):
 class Page(Base):
     __tablename__ = "pages"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    job_id = Column(UUID(as_uuid=True), ForeignKey("jobs.id"), nullable=False)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    job_id = Column(GUID(), ForeignKey("jobs.id"), nullable=False)
     page_number = Column(Integer, nullable=False)
     s3_image_key = Column(String(512), nullable=True)
     raw_text = Column(Text, nullable=True)
@@ -55,8 +72,8 @@ class Page(Base):
 class Question(Base):
     __tablename__ = "questions"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    job_id = Column(UUID(as_uuid=True), ForeignKey("jobs.id"), nullable=False)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    job_id = Column(GUID(), ForeignKey("jobs.id"), nullable=False)
     page_number = Column(Integer, nullable=False)
     question_text = Column(Text, nullable=False)
     options = Column(JSON, nullable=True)
@@ -70,8 +87,8 @@ class Question(Base):
 class Concept(Base):
     __tablename__ = "concepts"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    job_id = Column(UUID(as_uuid=True), ForeignKey("jobs.id"), nullable=False)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    job_id = Column(GUID(), ForeignKey("jobs.id"), nullable=False)
     name = Column(String(255), nullable=False)
     related_concepts = Column(JSON, nullable=True)
     question_ids = Column(JSON, nullable=True)
